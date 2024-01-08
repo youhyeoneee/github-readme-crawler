@@ -50,6 +50,10 @@ pip freeze > requirements.txt
 
 ### 실행 방법
 
+0. `pymysql`을 설치합니다.
+   ```bash
+   pip install pymysql
+   ```
 1. upload_db.py 파일의 `#RDS info` 부분을 설정해줍니다.
    ```python
    host = "@@@@.ap-northeast-2.rds.amazonaws.com" # RDS 엔드포인트
