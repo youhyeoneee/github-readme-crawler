@@ -3,10 +3,13 @@ import requests
 from bs4 import BeautifulSoup as bs
 import re
 from tqdm import tqdm
+import csv
 
+app = Flask(__name__)
 res = ["(mailto.*)", "(.*?velog.*)", "(.*?instagram.*)", "(.*?linkedin.*)"]
 file_path = 'github.txt'
-results = {}
+csv_file_path = 'mycsvfile.csv'
+results = []
 
 
 def open_file(path):
@@ -39,20 +42,31 @@ def save_data():
                     if m != None:
                         links.append(m.group())
 
-            results[name] = links
+            dict = {}
+            dict['name'] = name
+            dict['links'] = links
+            results.append(dict)
         else:
             print(f'error >> {url}')
 
-
-app = Flask(__name__)
-
+def save_csv():
+    global results
+    fieldnames = ['name', 'links']
+    f = open(csv_file_path, "w")
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(results)
+    for row in results:
+        writer.writerow(row)
+    f.close()
 
 @app.route('/')
 def read_txt():
     global results
     text = "<h1>신프디 3기</h1>"
-    for name, links in results.items():
-        text += f"<div> {name} :"
+    for r in results:
+        text += f"<div> {r['name']} :"
+        links = r['links']
         for link in links:
             text += f"<a href={link}>{link}</a> , "
         text += "<br>"
@@ -68,7 +82,14 @@ def show_user_profile(name):
         text += f"<a href={link}>{link}</a><br>"
     return text
 
-
-if __name__ == '__main__':
+def run_flask():
     save_data()
     app.run(host='0.0.0.0')
+
+def run_csv():
+    save_data()
+    save_csv()
+
+if __name__ == '__main__':
+    # run_flask()
+    run_csv()
